@@ -2,11 +2,21 @@ import boto3
 import json
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 
 from botocore.exceptions import ClientError
 
+# logger = logging.getLogger(__name__)
+# logging.basicConfig(filename='/home/ec2-user/code_repos/dynamicKGQA/logs/bedrock_functions.log',
+#                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logger.setLevel(logging.INFO)
+
+bedrock_runtime = boto3.client(
+        service_name='bedrock-runtime',
+        region_name='us-east-1'
+    )
 
 def build_anthropic_request_body(
     system_prompt: str,
@@ -162,7 +172,7 @@ def invoke_bedrock_endpoint(
     request_body: dict,
     model_id: str,
     region_name: str = "us-east-1",
-    contentType = 'application/json',
+    content_type = 'application/json',
     max_retries: int = 3,
     backoff_factor: float = 2.0
 ) -> dict:
@@ -178,10 +188,7 @@ def invoke_bedrock_endpoint(
                            1s, 2s, 4s between retries, etc.
     :return: The deserialized JSON response from Bedrock.
     """
-    bedrock_runtime = boto3.client(
-        service_name='bedrock-runtime',
-        region_name=region_name
-    )
+    
 
     for attempt in range(max_retries):
         try:
@@ -189,7 +196,7 @@ def invoke_bedrock_endpoint(
             response = bedrock_runtime.invoke_model(
                 body=request_body,
                 modelId=model_id,
-                contentType=contentType
+                contentType=content_type
             )
 
             # The response body is a StreamingBody, so we need to read and decode it.
@@ -211,3 +218,92 @@ def invoke_bedrock_endpoint(
             sleep_time = backoff_factor ** attempt
             logger.info(f"Retrying in {sleep_time} seconds...")
             time.sleep(sleep_time)
+
+
+
+def parallel_invoke_bedrock_endpoints(
+    requests_data: list,  
+    # requests_data is a list of tuples: [(request_body1, model_id1), (request_body2, model_id2), ...]
+    region_name="us-east-1",
+    contentType="application/json",
+    max_retries=3,
+    backoff_factor=2.0,
+    concurrency=5,
+    save_partial=True,
+    partial_save_path="partial_results.json",
+    save_interval: int = 100
+):
+    """
+    Invokes Bedrock endpoints in parallel using a thread pool, collects results,
+    and optionally saves partial results as they complete. Now with tqdm progress.
+    """
+    results = [None] * len(requests_data)
+
+    with ThreadPoolExecutor(max_workers=concurrency) as executor:
+        future_to_index = {}
+        
+        
+        
+        # Submit all tasks
+        for i, item in enumerate(requests_data):
+            record_id = item["recordId"]
+            model_input = item["modelInput"]
+
+            # Extract relevant fields from modelInput
+            model_id = model_input["modelId"]
+            body = model_input["body"]
+            content_type = model_input.get("contentType", "application/json")
+
+            fut = executor.submit(
+                invoke_bedrock_endpoint,
+                model_id=model_id,
+                request_body=body,
+                content_type=content_type,
+                region_name=region_name,
+                max_retries=max_retries,
+                backoff_factor=backoff_factor
+            )
+            future_to_index[fut] = i
+            
+        completed_count = 0
+        total_tasks = len(future_to_index)
+
+        # Track completion with tqdm
+        with tqdm(total=len(future_to_index), desc="Requests Completed") as pbar:
+            for future in as_completed(future_to_index):
+                i = future_to_index[future]
+                record_id = requests_data[i]["recordId"]
+
+                try:
+                    response_json = future.result()
+                    results[i] = {
+                        "recordId": record_id,
+                        "response": response_json,
+                        "error": None
+                    }
+                except Exception as exc:
+                    logger.error(f"Request {record_id} failed: {exc}")
+                    results[i] = {
+                        "recordId": record_id,
+                        "response": None,
+                        "error": str(exc)
+                    }
+
+                # Update tqdm
+                pbar.update(1)
+                completed_count += 1
+
+                # Optionally save partial
+                # if save_partial:
+                if save_partial and (
+                    (completed_count % save_interval == 0) or
+                    (completed_count == total_tasks)  # final iteration
+                ):
+                    try:
+                        with open(partial_save_path, "w") as f:
+                            json.dump(results, f, indent=2)
+                        logger.info(f"Partial results saved to {partial_save_path}")
+                    except Exception as e:
+                        logger.error(f"Failed saving partial results: {e}")
+
+    return results

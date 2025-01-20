@@ -1,3 +1,5 @@
 logs
 inputs
 outputs
+*__pycache__*
+exp.ipynb
