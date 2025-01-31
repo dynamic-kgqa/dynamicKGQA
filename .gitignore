@@ -3,3 +3,5 @@ inputs
 outputs
 *__pycache__*
 exp.ipynb
+consolidate_results.ipynb
+upload_data_hf.ipynb

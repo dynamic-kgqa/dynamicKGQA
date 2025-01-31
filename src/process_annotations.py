@@ -72,8 +72,9 @@ def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Process annotations using Bedrock endpoints.")
     parser.add_argument('--directory', type=str, required=True, help="Base directory for input and output files.")
-    parser.add_argument('--split', type=str, required=True, choices=['train', 'test', 'val'], help="Dataset split.")
+    parser.add_argument('--split', type=str, required=True, choices=['train', 'test', 'validation'], help="Dataset split.")
     parser.add_argument('--model_name', type=str, required=True, help="Name of the model to use.")
+    parser.add_argument('--file_nameId', type=str, required=True, help="Name of the qualifier.")
     parser.add_argument('--max_samples', type=int, default=None, help="Maximum number of samples to process.")
     parser.add_argument('--save_interval', type=int, default=None, help="Save at every N iteration.")
     
@@ -82,9 +83,9 @@ def main():
     # Define paths and filenames
     input_dir = os.path.join(args.directory, f"inputs/annotator_requests/{args.split}")
     output_dir = os.path.join(args.directory, f"outputs/annotations/{args.split}")
-    input_file_name = f"annotator_requests_qcheck_{args.model_name}_{args.split}.jsonl"
-    output_file_name = f"annotator_responses_qcheck_{args.model_name}_{args.split}.jsonl"
-    partial_output_file_name = f"annotator_responses_qcheck_{args.model_name}_{args.split}_partial.jsonl"
+    input_file_name = f"annotator_requests_{args.file_nameId}_{args.model_name}_{args.split}.jsonl"
+    output_file_name = f"annotator_responses_{args.file_nameId}_{args.model_name}_{args.split}.jsonl"
+    partial_output_file_name = f"annotator_responses_{args.file_nameId}_{args.model_name}_{args.split}_partial.jsonl"
 
     # Define log file
     log_dir = os.path.join(args.directory, "logs")
