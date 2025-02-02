@@ -37,6 +37,12 @@ def read_jsonl_file(file_path):
                 data.append(json.loads(line))
     return data
 
+# read json file
+def read_json_file(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
+
     
 def parse_json_from_text(text):
     """
@@ -335,6 +341,48 @@ def process_responses_for_qa_check(res, model):
             combined_results.append(template_structure)
             continue
         combined_results.append(parsed_dict)
+    print(f"Failed responses: {len(failed_responses)}")
+    
+    return combined_results, failed_responses
+
+def process_responses_for_inference(res, model):
+
+    failed_responses = []
+    combined_results = []
+
+
+
+    for i in tqdm(range(len(res))):
+        try:
+            if model == 'command_r':
+                response = res[i]['response']['text']
+                
+            elif model == 'mistral':
+                response = res[i]['response']['outputs'][0]['text']
+                
+            elif model == 'llama323b':
+                response = res[i]['response']['generation']
+                
+            elif model == 'nova':
+                response = res[i]['response']['output']['message']['content'][0]['text']
+            
+            
+            
+            if response is None:
+                failed_responses.append((i, res[i]))
+                # combined_results.append(None)
+                combined_results.append("")
+                continue
+            combined_results.append(response)
+        except Exception as e:
+            
+            failed_responses.append((i, res[i]))
+            # combined_results.append(None)
+            combined_results.append("")
+            print(f"Failed for index: {i}, with error: {e}")
+            continue
+        
+        
     print(f"Failed responses: {len(failed_responses)}")
     
     return combined_results, failed_responses

@@ -44,9 +44,11 @@ def build_anthropic_request_body(
     # you can instead pass a single string in "prompt". This example uses
     # "system" and "messages" to reflect the multi-message format.
     
-
+    # user_prompt = user_prompt.replace(system_prompt, "")
+    system_prompt = "You are helpful assistant."
     request_body = {
         "anthropic_version": "bedrock-2023-05-31",
+        
         "system": system_prompt,
         "messages": [
             {"role": "user", "content": user_prompt}
@@ -54,8 +56,42 @@ def build_anthropic_request_body(
         "max_tokens": max_tokens,
         "temperature": temperature
     }
-
     return request_body
+    
+    
+# def build_anthropic_request_body(prompt: str, max_tokens: int = 2048, temperature: float = 0) -> dict:
+#     """
+#     Builds a minimal JSON payload for Anthropic.
+
+#     :param prompt: The input text for the model.
+#     :param max_tokens: The maximum number of tokens to generate (default: 50).
+#     :param temperature: Sampling temperature for response variation (default: 0.7).
+#     :return: A dict representing the minimal request body.
+#     """
+#     request_body = {
+#     "modelId": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+#     "contentType": "application/json",
+#     "accept": "application/json",
+#     "body": json.dumps({
+#         "anthropic_version": "bedrock-2023-05-31",
+#         "max_tokens": max_tokens,
+#         "stop_sequences": [],
+#         "temperature": temperature,
+#         "messages": [
+#         {
+#             "role": "user",
+#             "content": [
+#             {
+#                 "type": "text",
+#                 "text": prompt
+#             }
+#             ]
+#         }
+#         ]
+#     })
+#     }
+
+#     return request_body
 
 def build_mistral_request_body(prompt: str, max_tokens: int = 2048, temperature: float = 0) -> dict:
     """
@@ -93,7 +129,7 @@ def build_llama_request_body(
     :return: A dict representing the minimal request body.
     """
     request_body = {
-        "modelId": "us.meta.llama3-3-70b-instruct-v1:0",
+        "modelId": "us.meta.llama3-2-3b-instruct-v1:0",
         "contentType": "application/json",
         "accept": "application/json",
         "body": json.dumps({
@@ -140,7 +176,7 @@ def build_nova_request_body(
 
     :param prompt: The input text for the model.
     :param max_new_tokens: The maximum number of tokens to generate in the response (default: 1000).
-    :param temperature: Sampling temperature for response variation (default: 0.7).
+    :param temperature: Sampling temperature for response variation (default: 0).
     :return: A dict representing the request body, with the 'body' serialized as a JSON string.
     """
     # Build the request body

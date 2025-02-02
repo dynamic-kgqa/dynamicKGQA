@@ -5,3 +5,7 @@ outputs
 exp.ipynb
 consolidate_results.ipynb
 upload_data_hf.ipynb
+compute_topic_spread.ipynb
+plots
+llm_inference*
+evaluate_results*
