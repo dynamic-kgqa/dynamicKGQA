@@ -9,3 +9,8 @@ compute_topic_spread.ipynb
 plots
 llm_inference*
 evaluate_results*
+.env
+dynamicSplits_requestGen.ipynb
+dynamicSplits_dataSeedSelection.ipynb
+compute_dynamicSplit_stats.ipynb
+topic_spread_plots.ipynb

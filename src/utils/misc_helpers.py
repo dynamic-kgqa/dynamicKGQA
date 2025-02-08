@@ -366,6 +366,11 @@ def process_responses_for_inference(res, model):
             elif model == 'nova':
                 response = res[i]['response']['output']['message']['content'][0]['text']
             
+            elif model == 'anthropic':
+                response = res[i]['modelOutput']['content'][0]['text']
+                
+            elif model == 'openai':
+                response = res[i]['response']['body']['choices'][0]['message']['content']
             
             
             if response is None:

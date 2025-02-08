@@ -58,6 +58,30 @@ def build_anthropic_request_body(
     }
     return request_body
     
+def build_anthropic_request_body_ondemand(user_prompt, max_tokens=1024, temperature=0):
+    request_body = {
+    "modelId": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+    "contentType": "application/json",
+    "accept": "application/json",
+    "body": json.dumps({
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        # "system": system_prompt,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": user_prompt
+                    }
+                ]
+            }
+        ]
+    })
+    }
+    return request_body
     
 # def build_anthropic_request_body(prompt: str, max_tokens: int = 2048, temperature: float = 0) -> dict:
 #     """
