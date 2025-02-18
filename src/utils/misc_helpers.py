@@ -37,6 +37,38 @@ def read_jsonl_file(file_path):
                 data.append(json.loads(line))
     return data
 
+def read_partial_jsonl_file(file_path):
+    """
+    Read a JSONL file or JSON array and return a list of JSON objects with a progress bar.
+
+    Args:
+        file_path (str): Path to the JSONL or JSON file.
+
+    Returns:
+        list: A list of JSON objects.
+    """
+    data = []
+    with open(file_path, 'r', encoding='utf-8') as file:
+        try:
+            # Attempt to load the entire file as a JSON array
+            data = json.load(file)
+        except json.JSONDecodeError:
+            # Fallback to reading as JSONL
+            file.seek(0)
+            total_lines = sum(1 for _ in file)
+            file.seek(0)
+            
+            for line in tqdm(file, total=total_lines, desc=f"Reading {file_path}"):
+                line = line.strip()
+                if not line:
+                    continue  # Skip empty lines
+                try:
+                    data.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue  # Skip invalid JSON lines silently
+    data = [entry for entry in data if entry is not None]      
+    return data
+
 # read json file
 def read_json_file(file_path):
     with open(file_path, 'r') as f:
@@ -370,6 +402,9 @@ def process_responses_for_inference(res, model):
                 response = res[i]['modelOutput']['content'][0]['text']
                 
             elif model == 'openai':
+                response = res[i]['response']['body']['choices'][0]['message']['content']
+                
+            elif model == 'openai-gpt4o-mini':
                 response = res[i]['response']['body']['choices'][0]['message']['content']
             
             
