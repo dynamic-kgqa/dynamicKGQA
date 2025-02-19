@@ -1,22 +1,21 @@
 # Knowledge Graph
 
 This submodule contains the code to work with the Yago Knowledge Graph (KG) for the DynamicKGQA framework.
-
-We host Yago 4.5 on Blazegraph using Docker. The KG is queried using SPARQL queries to retrieve information about entities and their relationships.
-The hosting was done on a AWS EC2 Ubuntu instance. We have tested the setup on the following releases:
-- Ubuntu 24.04.1 LTS
-- Ubuntu 20.04.6 LTS
-
-For the following method of setup, the we recommend using an instance with at least 64 GB of RAM and 400 GB of storage.
-
-Note: There are also other ways to host Yago, such as AWS Neptune, Virtuoso, and some other Docker solutions. We talk about these alternatives on a high level in the [KG_hosting_alternatives.md](./KG_hosting_alternatives.md) file.
+It also contains instructions to host Yago on Blazegraph.
 
 
 ## Yago Blazegraph Setup
 
 This subsection provides instructions to host Yago on Blazegraph using Docker, on Ubuntu. While these instructions have only been tested on Ubuntu, they should work on other operating systems with minor modifications.
 
+The hosting was done on a AWS EC2 Ubuntu instance. We have tested the setup on the following releases:
+- Ubuntu 24.04.1 LTS
+- Ubuntu 20.04.6 LTS
+
 The Blazegraph documentation in its current state, is not very detailed, and the community support is limited. We have thus tried to provide a detailed guide to help you get started with hosting Yago on Blazegraph. 
+For the following method of setup, the we recommend using an instance with at least 64 GB of RAM and 400 GB of storage.
+
+Note: There are also other ways that we have tried to host Yago, such as AWS Neptune, Virtuoso, and some other Docker solutions. We talk about these alternatives on a high level in the [KG_hosting_alternatives.md](./KG_hosting_alternatives.md) file.
 
 ### Contents
 
@@ -75,3 +74,37 @@ This command sends a POST request to the Blazegraph server, which loads the Yago
 In this command:
 - `yago/dataloader.txt` is the file that contains the data loading instructions. The path should be modified according to the location of the file on your system.
 - `localhost:9999` is the address and port of the Blazegraph server. The port should be modified according to the port on which Blazegraph is running.
+
+### Step 4: Access Blazegraph
+
+Once the data loading process is complete, you can access the Blazegraph Sparql endpoint at `http://localhost:9999/bigdata/sparql`. You can use this endpoint to query the Yago KG using SPARQL queries.
+
+Here's a sample CURL command to query the KG:
+
+```bash
+curl -X POST -H "Content-Type: application/sparql-query" -H "Accept: application/sparql-results+json" --data 'SELECT * WHERE {?s ?p ?o} LIMIT 10' http://localhost:9999/bigdata/sparql
+```
+
+You can also get the status of the Blazegraph server by visiting `http://localhost:9999/bigdata/status`.
+
+```bash
+curl -X GET http://localhost:9999/bigdata/status
+```
+
+### Extra Notes
+
+1. Running the Docker container in another directory
+
+Reference: [Docker Forum](https://forums.docker.com/t/configure-and-store-the-images-and-containers-to-the-different-folders/135593)
+
+Owing to the large size of the Yago KG, you may want to run the Docker container in a different directory. In this case, you can configure the docker data-root folder to use a different folder than /var/lib/docker like this:
+- Add the data-root entry to /etc/docker/daemon.json (needs to be created if it doesn’t already exist):
+```json
+{
+  "data-root": "/path/to/your/docker-data"
+}
+```
+- Restart the Docker service:
+```bash
+sudo systemctl restart docker
+```
