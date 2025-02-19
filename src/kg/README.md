@@ -8,6 +8,11 @@ It also contains instructions to host Yago on Blazegraph.
 
 This subsection provides instructions to host Yago on Blazegraph using Docker, on Ubuntu. While these instructions have only been tested on Ubuntu, they should work on other operating systems with minor modifications.
 
+Note: There are also other ways that we have tried to host Yago, such as AWS Neptune, Virtuoso, and some other Docker solutions. We talk about these alternatives on a high level in the [KG_hosting_alternatives.md](./KG_hosting_alternatives.md) file.
+
+
+### Context
+
 The hosting was done on a AWS EC2 Ubuntu instance. We have tested the setup on the following releases:
 - Ubuntu 24.04.1 LTS
 - Ubuntu 20.04.6 LTS
@@ -15,9 +20,12 @@ The hosting was done on a AWS EC2 Ubuntu instance. We have tested the setup on t
 The Blazegraph documentation in its current state, is not very detailed, and the community support is limited. We have thus tried to provide a detailed guide to help you get started with hosting Yago on Blazegraph. 
 For the following method of setup, the we recommend using an instance with at least 64 GB of RAM and 400 GB of storage.
 
-Note: There are also other ways that we have tried to host Yago, such as AWS Neptune, Virtuoso, and some other Docker solutions. We talk about these alternatives on a high level in the [KG_hosting_alternatives.md](./KG_hosting_alternatives.md) file.
+The total time taken to set up the Blazegraph instance and load the Yago KG was around 36 hours. This time can be reduced to around 8 hours if we do not load the `yago-beyond-wikipedia.ttl` file.
 
-### Contents
+Customizing the `RWStore.properties` file, garbage collection settings, and heap size can help in optimizing the performance of Blazegraph. 
+
+
+### Custom Configuration Files
 
 In order to host Yago on Blazegraph, which has some scalability issues, we need to modify the default configuration of Blazegraph.
 
@@ -38,11 +46,11 @@ The dataloader.txt is the file used to load the Yago KG into Blazegraph. The fil
 The file has been pulled from the [Docker Blazegraph GitHub repository](https://github.com/lyrasis/docker-blazegraph/blob/master/data/dataloader.txt.example). We have not made any modifications to this file.
 
 
-### Step 1: Install Docker Engine
+### Step 2: Install Docker Engine
 
 We installed Docker using the instructions given in [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository), using the `apt` repository.
 
-### Step 2: Run Blazegraph Docker Container
+### Step 3: Run Blazegraph Docker Container
 
 We can directly run the Blazegraph Docker container, and have it pull the latest image from the Docker Hub. 
 However, 
@@ -62,7 +70,7 @@ In this command:
 - `yago-4.5.0.2` is the directory containing the Yago KG. It is mounted to the container at `/data`. The path `$PWD/yago-4.5.0.2` should be modified according to the location of the KG on your system.
 - `lyrasis/blazegraph:2.1.4` is the Blazegraph Docker image that we used.
 
-### Step 3: Load Yago KG into Blazegraph
+### Step 4: Load Yago KG into Blazegraph
 
 Trigger the data loading process by running the following command:
 
@@ -75,7 +83,7 @@ In this command:
 - `yago/dataloader.txt` is the file that contains the data loading instructions. The path should be modified according to the location of the file on your system.
 - `localhost:9999` is the address and port of the Blazegraph server. The port should be modified according to the port on which Blazegraph is running.
 
-### Step 4: Access Blazegraph
+### Step 5: Access Blazegraph
 
 Once the data loading process is complete, you can access the Blazegraph Sparql endpoint at `http://localhost:9999/bigdata/sparql`. You can use this endpoint to query the Yago KG using SPARQL queries.
 
