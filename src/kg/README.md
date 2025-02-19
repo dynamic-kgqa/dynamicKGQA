@@ -10,6 +10,21 @@ This subsection provides instructions to host Yago on Blazegraph using Docker, o
 
 Note: There are also other ways that we have tried to host Yago, such as AWS Neptune, Virtuoso, and some other Docker solutions. We talk about these alternatives on a high level in the [KG_hosting_alternatives.md](./KG_hosting_alternatives.md) file.
 
+### TL;DR
+
+1. Install Docker Engine on Ubuntu.
+2. Run the Blazegraph Docker container with custom configurations.
+Run the following command from this directory:
+```bash
+sudo docker run --name blazegraph -d   -e BLAZEGRAPH_UID=$BLAZEGRAPH_UID   -e BLAZEGRAPH_GID=$BLAZEGRAPH_GID   -e JAVA_OPTS="-Xmx64g -XX:+UseParallelGC"   -p 9999:8080   -v $PWD/yago/RWStore_scaled.properties:/RWStore.properties   -v $PWD/yago-4.5.0.2:/data   lyrasis/blazegraph:2.1.4
+```
+3. Load the Yago KG into Blazegraph.
+Run the following command from this directory:
+```bash
+curl -vvv -X POST   --data-binary @yago/dataloader.txt   --header 'Content-Type:text/plain'   http://localhost:9999/bigdata/dataloader
+```
+4. Access the Blazegraph Sparql endpoint at `http://localhost:9999/bigdata/sparql` and query the KG using SPARQL queries.
+
 
 ### Context
 
