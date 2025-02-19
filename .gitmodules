@@ -1,0 +1,3 @@
+[submodule "src/baselines/ToG"]
+	path = src/baselines/ToG
+	url = https://github.com/himanshunaidu/ToG.git
