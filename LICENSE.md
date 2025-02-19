@@ -41,15 +41,7 @@ SOFTWARE.
 
 ---
 
-## 3. Model Output Handling
-This project calls external models on demand (e.g., Cohere's Command-R, Mistral Small, Claude 3.5 Sonnet, and Amazon Nova Lite).  
-To comply with the terms of service of these models:
-- **No direct model outputs are redistributed.** The dataset includes only metadata, derived insights, and aggregated benchmarking results.
-- **Users of this framework must agree to the API terms of the respective providers** when running the benchmarking framework.
-
----
-
-## 4. Disclaimer
-This project is intended for academic and research purposes only.  
+## 3. Disclaimer
+This project is intended for academic and research purposes.  
 It is provided "as is" without any warranty of accuracy, completeness, or fitness for a particular purpose.
 
