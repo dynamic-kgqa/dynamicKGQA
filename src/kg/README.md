@@ -61,6 +61,13 @@ The dataloader.txt is the file used to load the Yago KG into Blazegraph. The fil
 The file has been pulled from the [Docker Blazegraph GitHub repository](https://github.com/lyrasis/docker-blazegraph/blob/master/data/dataloader.txt.example). We have not made any modifications to this file.
 
 
+### Step 1: Download Yago KG
+
+Download the Yago 4.5 KG from the downloads repository of the [official Yago website](https://yago-knowledge.org/data/yago4.5/). The KG is available in several formats, such as TTL, NT, and RDF. We recommend using the TTL format, as it is the most widely used format for knowledge graphs.
+
+As of February 2025, download the yago-4.5.0.2.zip file. Unzip the file and place the yago-4.5.0.2 directory in the [yago](./yago) directory.
+
+
 ### Step 2: Install Docker Engine
 
 We installed Docker using the instructions given in [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository), using the `apt` repository.
