@@ -18,7 +18,7 @@ This ensures that all necessary packages are installed for the project.
 
 ## 2. Host YAGO on Blazegraph
 
-To get started, you need to host **YAGO on Blazegraph 4.5**. Detailed setup instructions are **TBD.**
+To get started, you need to host **YAGO on Blazegraph 4.5**. Detailed setup instructions are provided [here](./src/kg/README.md).
 
 ---
 

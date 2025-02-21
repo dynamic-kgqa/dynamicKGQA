@@ -1,3 +1,6 @@
+"""
+Miscellaneous helper functions for processing JSON data and files.
+"""
 import json
 import re
 from tqdm import tqdm

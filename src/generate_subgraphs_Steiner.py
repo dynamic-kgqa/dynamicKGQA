@@ -1,3 +1,7 @@
+"""
+This module generates subgraphs for a given set of QIDs. It uses the Steiner tree algorithm to build a minimal subgraph
+that connects the interesting entities for each QID. The resulting subgraphs are saved as triples in JSON format.
+"""
 import logging
 import os
 import json

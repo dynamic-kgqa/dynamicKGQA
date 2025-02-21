@@ -1,3 +1,7 @@
+"""
+This module contains utility functions for interacting with the YAGO knowledge graph.
+In order to work with your own endpoint, you may need to modify the `yago_endpoint_url` variable.
+"""
 import json
 from kg.query import query_kg, query_kg_endpoint, get_triples_from_response
 from concurrent.futures import ThreadPoolExecutor

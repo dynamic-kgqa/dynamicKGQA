@@ -1,3 +1,6 @@
+"""
+This module contains functions to process the results of the model predictions.
+"""
 import re
 import string
 from sklearn.metrics import precision_score

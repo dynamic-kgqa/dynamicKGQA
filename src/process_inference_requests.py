@@ -1,3 +1,6 @@
+"""
+This module processes annotations using Bedrock endpoints.
+"""
 import os
 import json
 import argparse

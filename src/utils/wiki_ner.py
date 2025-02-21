@@ -1,3 +1,6 @@
+"""
+This module provides utility functions for Named Entity Recognition (NER) using spaCy and the Entity Linker pipeline.
+"""
 import spacy
 import json
 

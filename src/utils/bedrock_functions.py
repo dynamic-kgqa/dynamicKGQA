@@ -1,3 +1,6 @@
+"""
+This module provides utility functions for interacting with the Bedrock API.
+"""
 import boto3
 import json
 import logging

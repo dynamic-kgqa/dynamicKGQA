@@ -1,3 +1,6 @@
+"""
+This module contains utility functions for working with subgraphs of a Knowledge Graph.
+"""
 from kg.query import query_kg, query_kg_endpoint, get_triples_from_response
 import matplotlib.pyplot as plt
 import networkx as nx

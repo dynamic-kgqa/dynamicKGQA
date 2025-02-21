@@ -1,3 +1,7 @@
+"""
+This module contains functions to generate prompts for various tasks in the DynamicKGQA project.
+"""
+
 def generate_question_evaluation_prompt(question):
     prompt = f"""As an expert evaluator, your role is to assess the quality and validity of trivia or natural questions. These questions aim to test the responder's knowledge, which may require implicit or external information. Your goal is to analyze the question based on the following criteria:
 
