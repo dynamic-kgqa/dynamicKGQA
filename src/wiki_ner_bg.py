@@ -1,7 +1,7 @@
 """
 This module extracts named entities from the Wiki40B dataset using spaCy and the Entity Linker pipeline.
 """
-from utils.wiki_ner import extract_entities_to_json
+from ner.wiki_ner import extract_entities_to_json
 from datasets import load_dataset
 from tqdm import tqdm
 import json
