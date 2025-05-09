@@ -8,7 +8,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from kg.query import query_kg, query_kg_endpoint, get_triples_from_response
-from utils.kg_functions import (load_json, extract_ids_with_prefix, convert_QID_yagoID, 
+from kg.kg_functions import (load_json, extract_ids_with_prefix, convert_QID_yagoID, 
                                 combine_lists_from_dict, get_yago_direct_neighbors, 
                                 sparql_to_triples_with_main_entity, parallel_process_nodes)
 

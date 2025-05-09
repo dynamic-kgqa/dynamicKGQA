@@ -7,9 +7,9 @@ import networkx as nx
 from networkx.algorithms.approximation import steiner_tree
 
 
-from utils.kg_functions import load_json, extract_ids_with_prefix, convert_QID_yagoID
-from utils.kg_functions import combine_lists_from_dict, get_yago_direct_neighbors, sparql_to_triples_with_main_entity
-from utils.kg_functions import parallel_process_nodes, extract_ids_with_prefix, parallel_convert_QID_yagoID
+from kg.kg_functions import load_json, extract_ids_with_prefix, convert_QID_yagoID
+from kg.kg_functions import combine_lists_from_dict, get_yago_direct_neighbors, sparql_to_triples_with_main_entity
+from kg.kg_functions import parallel_process_nodes, extract_ids_with_prefix, parallel_convert_QID_yagoID
 
 yago_endpoint_url = "http://localhost:9999/bigdata/sparql"
 
