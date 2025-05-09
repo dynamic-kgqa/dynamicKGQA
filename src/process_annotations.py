@@ -8,7 +8,7 @@ import logging
 from tqdm import tqdm
 import pandas as pd
 
-from utils.bedrock_functions import parallel_invoke_bedrock_endpoints
+from llm.bedrock_functions import parallel_invoke_bedrock_endpoints
 from utils.misc_helpers import read_jsonl_file, save_as_jsonl, read_partial_jsonl_file
 
 def setup_logging(log_file_path):

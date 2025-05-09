@@ -1,4 +1,4 @@
-from utils.azure_endpoints import query_openai_model, query_phi3_model, query_phi4_model
+from llm.azure_endpoints import query_openai_model, query_phi3_model, query_phi4_model
 from utils.parsing_helpers import convert_to_json_object
 import json
 
