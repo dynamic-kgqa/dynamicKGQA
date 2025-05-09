@@ -10,6 +10,8 @@ from tqdm import tqdm
 
 from botocore.exceptions import ClientError
 
+# TODO: This preprocessing logic should not be in global scope. 
+# We should have a function to load the environment variables and initialize the clients based on a config file.
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(filename='/home/ec2-user/code_repos/dynamicKGQA/logs/bedrock_functions.log',
 #                     level=logging.INFO)
