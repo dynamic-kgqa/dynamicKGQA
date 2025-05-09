@@ -155,6 +155,7 @@ def parse_json_from_text_adict(text):
         except json.JSONDecodeError:
             # Fallback to safely_load_json if direct parsing fails
             # print("Direct JSON parsing failed, trying safe load.")
+            # FIXME: What is this function?
             return safely_load_json(text)
 
     except json.JSONDecodeError as e:

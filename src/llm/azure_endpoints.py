@@ -23,6 +23,8 @@ def find_dotenv(start_path='.'):
             return None
         current_dir = new_dir
 
+# TODO: This preprocessing logic should not be in global scope. 
+# We should have a function to load the environment variables and initialize the clients based on a config file.
 # Initialize logging
 logging.basicConfig(filename='azure_endpoints.log', level=logging.INFO,
                    format='%(asctime)s - %(levelname)s - %(message)s')

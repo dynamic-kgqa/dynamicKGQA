@@ -11,6 +11,7 @@ from kg.kg_functions import load_json, extract_ids_with_prefix, convert_QID_yago
 from kg.kg_functions import combine_lists_from_dict, get_yago_direct_neighbors, sparql_to_triples_with_main_entity
 from kg.kg_functions import parallel_process_nodes, extract_ids_with_prefix, parallel_convert_QID_yagoID
 
+# TODO: Move this to a config file
 yago_endpoint_url = "http://localhost:9999/bigdata/sparql"
 
 
