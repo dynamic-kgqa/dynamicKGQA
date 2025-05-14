@@ -61,7 +61,7 @@ def run_all_preprocessing():
     secrets = load_environment_variables()
     return logger, initialize_clients(secrets)
 
-# calling run all function
+# calling run all preprocessing function
 logger, client = run_all_preprocessing()
 
 def query_openai_model(prompt, model_name = "gpt4-turbo-0125"):
@@ -140,7 +140,6 @@ def query_openai_model_batch_save(prompts, model_name="gpt4-turbo-0125", max_wor
                 
     # Save final results
     np.save(f'{save_path}'+'_final', results)
-    
     
     return results
 
