@@ -26,38 +26,54 @@ def find_dotenv(start_path='.'):
 # TODO: This preprocessing logic should not be in global scope. 
 # We should have a function to load the environment variables and initialize the clients based on a config file.
 # Initialize logging
-logging.basicConfig(filename='azure_endpoints.log', level=logging.INFO,
-                   format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+def initialize_logging(log_file='azure_endpoints.log'):
+    logging.basicConfig(filename=log_file, level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+    return logging.getLogger(__name__)
 
-def log_message(message):
+# log_message is not being called anywhere in the code
+def log_message(logger, message):
     logger.log(logging.INFO, message)
 
 # Load environment variables
-dotenv_path = find_dotenv()
-if dotenv_path:
-    secrets = dotenv_values(dotenv_path)
-else:
-    raise FileNotFoundError(".env file not found in any parent directory")
+def load_environment_variables():
+    dotenv_path = find_dotenv()
+    if dotenv_path:
+        secrets = dotenv_values(dotenv_path)
+    else:
+        raise FileNotFoundError(".env file not found in any parent directory")
+    return secrets
 
 # Initialize OpenAI client
-openai_client = AzureOpenAI(
-    azure_endpoint=secrets['AZURE_OPENAI_ENDPOINT'],
-    api_key=secrets['AZURE_OPENAI_KEY'],
-    api_version="2024-02-15-preview"
-)
+def initialize_clients(secrets):
+    openai_client = AzureOpenAI(
+        azure_endpoint=secrets['AZURE_OPENAI_ENDPOINT'],
+        api_key=secrets['AZURE_OPENAI_KEY'],
+        api_version="2024-02-15-preview"
+    )
 
-# Initialize Phi-3 client
-phi3_client = ChatCompletionsClient(
-    endpoint=secrets['AZURE_PHI3_ENDPOINT'],
-    credential=AzureKeyCredential(secrets['AZURE_PHI3_KEY'])
-)
+    # Initialize Phi-3 client
+    phi3_client = ChatCompletionsClient(
+        endpoint=secrets['AZURE_PHI3_ENDPOINT'],
+        credential=AzureKeyCredential(secrets['AZURE_PHI3_KEY'])
+    )
 
-# Initialize Phi-4 client
-phi4_client = ChatCompletionsClient(
-    endpoint=secrets['AZURE_PHI4_ENDPOINT'],
-    credential=AzureKeyCredential(secrets['AZURE_PHI4_KEY'])
-)
+    # Initialize Phi-4 client
+    phi4_client = ChatCompletionsClient(
+        endpoint=secrets['AZURE_PHI4_ENDPOINT'],
+        credential=AzureKeyCredential(secrets['AZURE_PHI4_KEY'])
+    )
+    return openai_client, phi3_client, phi4_client
+
+# function to run all above preprocessing operations/functions
+def run_all_preprocessing():
+    logger = initialize_logging()
+    log_message(logger, "Starting all operations")
+    secrets = load_environment_variables()
+    return initialize_clients(secrets)
+
+# calling run all function
+openai_client, phi3_client, phi4_client = run_all_preprocessing()
 
 def query_with_retries(func, *args, max_retries=5, **kwargs):
     """
