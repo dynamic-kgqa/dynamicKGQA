@@ -44,7 +44,7 @@ def load_environment_variables():
         raise FileNotFoundError(".env file not found in any parent directory")
     return secrets
 
-# Initialize OpenAI client
+# Initialize clients
 def initialize_clients(secrets):
     openai_client = AzureOpenAI(
         azure_endpoint=secrets['AZURE_OPENAI_ENDPOINT'],
