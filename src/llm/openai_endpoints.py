@@ -52,7 +52,6 @@ def initialize_logging(log_file='openai_logger.log'):
 # Function to log specific messages
 def log_message(logger, message):
     logger.log(logging.INFO, message)
-    
 
 # function to run all above preprocessing operations/functions
 def run_all_preprocessing():
