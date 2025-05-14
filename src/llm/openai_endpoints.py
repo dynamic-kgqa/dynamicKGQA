@@ -20,34 +20,48 @@ def find_dotenv(start_path='.'):
         current_dir = new_dir
 
 # TODO: This preprocessing logic should not be in global scope. 
-# We should have a function to load the environment variables and initialize the clients based on a config file.
-dotenv_path = find_dotenv()
-if dotenv_path:
-    secrets = dotenv_values(dotenv_path)
-else:
-    raise FileNotFoundError(".env file not found in any parent directory")
 
-# secrets = dotenv_values(".env")
-personal_api_key = secrets['AZURE_OPENAI_KEY']
-azure_endpoint = secrets['AZURE_OPENAI_ENDPOINT']
+# Load environment variables
+def load_environment_variables():
+    dotenv_path = find_dotenv()
+    if dotenv_path:
+        secrets = dotenv_values(dotenv_path)
+    else:
+        raise FileNotFoundError(".env file not found in any parent directory")
+    return secrets
 
-client = AzureOpenAI(
-  azure_endpoint = azure_endpoint, 
-  api_key=personal_api_key,  
-  api_version="2024-02-15-preview"
-)
+# Initialize clients
+def initialize_clients(secrets):
+    personal_api_key = secrets['AZURE_OPENAI_KEY']
+    azure_endpoint = secrets['AZURE_OPENAI_ENDPOINT']
+
+    client = AzureOpenAI(
+    azure_endpoint = azure_endpoint, 
+    api_key=personal_api_key,  
+    api_version="2024-02-15-preview"
+    )
+    return client
+
+# Initialize logging
+def initialize_logging(log_file='openai_logger.log'):
+    logging.basicConfig(filename=log_file, level=logging.INFO, 
+                        format='%(asctime)s - %(levelname)s - %(message)s')
+    return logging.getLogger(__name__)
 
 
-logging.basicConfig(filename='openai_logger.log', level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
-# logging.basicConfig(filename='openai_logger.log', level=logging.ERROR, 
-#                     format='%(asctime)s - %(levelname)s - %(message)s')
-# Create a logger object
-logger = logging.getLogger(__name__)
 # Function to log specific messages
-def log_message(message):
+def log_message(logger, message):
     logger.log(logging.INFO, message)
+
+# function to run all above preprocessing operations/functions
+def run_all_preprocessing():
+    logger = initialize_logging()
+    log_message(logger, "Starting all operations")
+    secrets = load_environment_variables()
+    return logger, initialize_clients(secrets)
+
+# calling run all preprocessing function
+logger, client = run_all_preprocessing()
 
 def query_openai_model(prompt, model_name = "gpt4-turbo-0125"):
     response = client.chat.completions.create(
@@ -114,7 +128,7 @@ def query_openai_model_batch_save(prompts, model_name="gpt4-turbo-0125", max_wor
                 results[idx] = result
             except Exception as e:
                 logging.error(f"Error processing a future for prompt index {idx}: {e}")
-                log_message(f"Error processing a future for prompt index {idx}: {e}")
+                log_message(logger, f"Error processing a future for prompt index {idx}: {e}")
                 results[idx] = (None, None)
                 
             # Save the results every 'save_interval' iterations
