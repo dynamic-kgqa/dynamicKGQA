@@ -42,6 +42,7 @@ def initialize_clients(secrets):
     )
     return client
 
+
 # Initialize logging
 def initialize_logging(log_file='openai_logger.log'):
     logging.basicConfig(filename=log_file, level=logging.INFO, 
