@@ -2,11 +2,14 @@ import os
 from dotenv import dotenv_values
 import logging
 
-class BaseEndpoint:
+from abc import ABC, abstractmethod
+
+class BaseEndpoint(ABC):
     """
     Base class to interact with a specific LLM endpoint.
     This class should be extended for each specific LLM endpoint.
     """
+    @abstractmethod
     def __init__():
         """
         Initialize the BaseEndpoint class.
@@ -39,6 +42,7 @@ class BaseEndpoint:
         else:
             raise FileNotFoundError(".env file not found in any parent directory")
 
+    @abstractmethod
     def initialize_clients(self, secrets):
         """
         Initialize the clients for the specific LLM endpoint.
@@ -61,6 +65,7 @@ class BaseEndpoint:
         """
         self.logger.log(logging.INFO, message)
 
+    @abstractmethod
     def query(self, prompt, model_name, **kwargs):
         """
         Query the LLM endpoint with a given prompt and model name.
@@ -68,6 +73,7 @@ class BaseEndpoint:
         """
         raise NotImplementedError("This method should be overridden by subclasses")
 
+    @abstractmethod
     def query_with_retries(self, prompt, model_name, **kwargs):
         """
         Query the LLM endpoint with retry logic.
@@ -75,6 +81,7 @@ class BaseEndpoint:
         """
         raise NotImplementedError("This method should be overridden by subclasses")
 
+    @abstractmethod
     def query_batch(self, prompts, model_name, **kwargs):
         """
         Query the LLM endpoint with a batch of prompts.
