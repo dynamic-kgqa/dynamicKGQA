@@ -55,6 +55,9 @@ class BaseEndpoint(ABC):
         """
         Initialize the clients for the specific LLM endpoint.
         This method should be overridden by subclasses to set up the specific clients.
+
+        TODO: Make this method more flexible to allow it to be called outside of the constructor
+        as well as allow the re-initialization of only specific clients.
         """
         raise NotImplementedError("This method should be overridden by subclasses")
 
