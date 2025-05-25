@@ -26,9 +26,13 @@ class AzureModel(Enum):
     pass
 
 class AzureEndpoint(BaseEndpoint):
-    def __init__(self):
+    """
+    This class handles interactions with Azure OpenAI and Phi-3/4 endpoints.
+    It initializes the clients and provides methods to query the models.
+    """
+    def __init__(self, log_file: str = 'azure_endpoints.log'):
         self.secrets = self.load_env()
-        self._load_logging(log_file='azure_endpoints.log')
+        self._load_logging(log_file=log_file)
         self.initialize_clients(self.secrets)
 
     def initialize_clients(self, secrets: dict):
@@ -56,9 +60,9 @@ class AzureEndpoint(BaseEndpoint):
         if model_type == AzureModelType.OPENAI:
             return self._query_openai(prompt, model_name=model_name, **kwargs)
         elif model_type == AzureModelType.PHI3:
-            return self.query_phi3_model(prompt, **kwargs)
+            return self._query_phi3(prompt, **kwargs)
         elif model_type == AzureModelType.PHI4:
-            return self.query_phi4_model(prompt, **kwargs)
+            return self._query_phi4(prompt, **kwargs)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
 
@@ -106,34 +110,13 @@ class AzureEndpoint(BaseEndpoint):
         return response.choices[0].message.content, None
 
     def query_with_retries(self, prompt: str, model_type: AzureModelType, model_name: str, max_retries: int=5, **kwargs) -> tuple:
-        retry_count = 0
-        wait_time = 1  # Start with 1 second wait time
-        last_error = None
-
-        while retry_count < max_retries:
-            try:
-                return self.query(prompt, model_type, model_name, **kwargs)
-            except Exception as e:
-                last_error = e
-                error_msg = str(e).lower()
-                logging.error(f"Error in querying {model_type.value} model: {e}")
-                
-                # Check for various error conditions that warrant a retry
-                if any(err in error_msg for err in ['rate limit', 'timeout', 'connection', 'server']):
-                    retry_count += 1
-                    if retry_count < max_retries:
-                        logging.info(f"Attempt {retry_count}/{max_retries}. Retrying in {wait_time} seconds...")
-                        time.sleep(wait_time)
-                        wait_time *= 2
-                else:
-                    # If it's not a retryable error, break immediately
-                    break
-        # If we've exhausted retries or hit a non-retryable error
-        logging.error(f"Failed after {retry_count} retries. Last error: {last_error}")
-        return None, None
+        return super().query_with_retries(prompt, model_type, model_name, max_retries, **kwargs)
     
-    def query_batch(self, prompts: str, model_type: AzureModelType, model_name: str, **kwargs) -> list[tuple]:
-        return super().query_batch(prompts, model_type, model_name, **kwargs)
+    def query_batch(self, prompts: str, model_type: AzureModelType, model_name: str, max_workers: int=5, **kwargs) -> dict:
+        return super().query_batch(prompts, model_type, model_name, max_workers=max_workers, **kwargs)
+
+    def query_batch_save(self, prompts: list[str], model_type, model_name, max_workers: int=5, save_interval: int=500, save_path: str="openai_results", **kwargs) -> None:
+        super().query_batch_save(prompts, model_type, model_name, max_workers=max_workers, save_interval=save_interval, save_path=save_path, **kwargs)
     
 if __name__ == "__main__":
     # Initialize the AzureEndpoint
