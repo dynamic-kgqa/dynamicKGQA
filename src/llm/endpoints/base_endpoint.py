@@ -78,7 +78,7 @@ class BaseEndpoint(ABC):
         raise NotImplementedError("This method should be overridden by subclasses")
 
     @abstractmethod
-    def query_with_retries(self, prompt: str, model_type: Type[T], model_name: str, **kwargs) -> tuple:
+    def query_with_retries(self, prompt: str, model_type: Type[T], model_name: str, max_retries: int, **kwargs) -> tuple:
         """
         Query the LLM endpoint with retry logic.
         This method should be overridden by subclasses.
