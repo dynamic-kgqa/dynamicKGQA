@@ -1,6 +1,10 @@
 import os
 from dotenv import dotenv_values
 import logging
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
+import numpy as np
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -14,7 +18,7 @@ class BaseEndpoint(ABC):
     This class should be extended for each specific LLM endpoint.
     """
     @abstractmethod
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Initialize the BaseEndpoint class.
         This method should be overridden by subclasses to set up the specific endpoint.
@@ -59,6 +63,9 @@ class BaseEndpoint(ABC):
         Initialize logging for the endpoint interactions.
         Logs will be written to the specified log file.
         """
+        # FIXME: logging.basicConfig is a convenience method intended for use by simple scripts
+        # to do one-shot configuration of the logging package.
+        # For more complex applications, it is recommended to use a more sophisticated logging setup.
         logging.basicConfig(filename=log_file, level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger(__name__)
@@ -69,6 +76,12 @@ class BaseEndpoint(ABC):
         """
         self.logger.log(logging.INFO, message)
 
+    def log_error(self, message: str) -> None:
+        """
+        Log an error message to the logger.
+        """
+        self.logger.log(logging.ERROR, message)
+
     @abstractmethod
     def query(self, prompt: str, model_type: Type[T], model_name: str, **kwargs) -> tuple:
         """
@@ -77,20 +90,80 @@ class BaseEndpoint(ABC):
         """
         raise NotImplementedError("This method should be overridden by subclasses")
 
-    @abstractmethod
-    def query_with_retries(self, prompt: str, model_type: Type[T], model_name: str, max_retries: int, **kwargs) -> tuple:
-        """
-        Query the LLM endpoint with retry logic.
-        This method should be overridden by subclasses.
-        """
-        raise NotImplementedError("This method should be overridden by subclasses")
+    def query_with_retries(self, prompt: str, model_type: Type[T], model_name: str, max_retries: int, **kwargs):
+        retry_count = 0
+        wait_time = 1  # Start with 1 second wait time
+        last_error = None
 
-    @abstractmethod
-    def query_batch(self, prompts: str, model_type: Type[T], model_name: str, **kwargs) -> list[tuple]:
+        while retry_count < max_retries:
+            try:
+                return self.query(prompt, model_type, model_name, **kwargs)
+            except Exception as e:
+                last_error = e
+                error_msg = str(e).lower()
+                self.log_error(f"Error in querying {model_type.value} model: {e}")
+                
+                # Check for various error conditions that warrant a retry
+                if any(err in error_msg for err in ['rate limit', 'timeout', 'connection', 'server']):
+                    retry_count += 1
+                    if retry_count < max_retries:
+                        self.log_message(f"Attempt {retry_count}/{max_retries}. Retrying in {wait_time} seconds...")
+                        time.sleep(wait_time)
+                        wait_time *= 2
+                else:
+                    # If it's not a retryable error, break immediately
+                    break
+        # If we've exhausted retries or hit a non-retryable error
+        self.log_error(f"Failed after {retry_count} retries. Last error: {last_error}")
+        return None, None
+
+    def query_batch(self, prompts: list[str], model_type: Type[T], model_name: str, max_workers: int, **kwargs) -> dict:
+        results = {}
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(self.query_with_retries, prompt, model_type, model_name, **kwargs): i
+                for i, prompt in enumerate(prompts)
+            }
+            for i, future in enumerate(tqdm(as_completed(futures), total=len(futures), desc="Processing prompts")):
+                try:
+                    result = future.result()
+                    idx = futures[future]
+                    results[idx] = result
+                except Exception as e:
+                    self.log_error(f"Error processing a future for prompt index {idx}: {e}")
+                    results[idx] = (None, None)
+        return results
+    
+    def query_batch_save(self, prompts: list[str], model_type: Type[T], model_name: str, max_workers: int, save_interval: int, save_path: str, **kwargs) -> None:
+        results = {}
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(self.query_with_retries, prompt, model_type, model_name, **kwargs): i
+                for i, prompt in enumerate(prompts)
+            }
+            for i, future in enumerate(tqdm(as_completed(futures), total=len(futures), desc="Processing prompts")):
+                try:
+                    result = future.result()
+                    idx = futures[future]
+                    results[idx] = result
+                except Exception as e:
+                    self.log_error(f"Error processing a future for prompt index {idx}: {e}")
+                    results[idx] = (None, None)
+                # Save results to a file
+                if (i + 1) % save_interval == 0:
+                    self.log_message(f"Saving results after processing {i + 1} prompts.")
+                    self._save_results(results, save_path, save_file_path=f"results_temp_{i + 1}.npy")
+        # Save final results
+        self._save_results(results, save_path, save_file_path='final_results.npy')
+
+    def _save_results(self, results: dict, save_path: str, save_file_path: str = 'results.npy'):
         """
-        Query the LLM endpoint with a batch of prompts.
-        This method should be overridden by subclasses.
+        Save results to a specified path.
         """
-        raise NotImplementedError("This method should be overridden by subclasses")
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        save_file = os.path.join(save_path, save_file_path)
+        np.save(save_file, results)
+        self.log_message(f"Results saved to {save_file}")
 
 
