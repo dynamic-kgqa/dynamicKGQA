@@ -9,12 +9,23 @@ import numpy as np
 import json
 from enum import Enum
 
-from base_endpoint import BaseEndpoint
+# FIXME: Once the entire codebase is bundled into a package, we can support relative imports.
+if __name__=='__main__':
+    if __package__ is None:
+        from os import path
+        import sys
+        sys.path.insert(0, path.dirname( path.abspath(__file__) ) )
+        from base_endpoint import BaseEndpoint
+    else:
+        from .base_endpoint import BaseEndpoint
+else:
+    # We assume this is always called from src directory
+    from llm.endpoints.base_endpoint import BaseEndpoint
 
 class OpenAIModelType(Enum):
     OPENAI = "openai"
 
-# Define the OpenAIModel Enum to represent different OpenAI models
+# TODO: Define the OpenAIModel Enum to represent different OpenAI models
 ## Can be extended with specific models as needed
 class OpenAIModel(Enum):
     pass

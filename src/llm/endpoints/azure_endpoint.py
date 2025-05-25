@@ -13,14 +13,25 @@ import time
 import numpy as np
 from enum import Enum
 
-from base_endpoint import BaseEndpoint
+# FIXME: Once the entire codebase is bundled into a package, we can support relative imports.
+if __name__=='__main__':
+    if __package__ is None:
+        from os import path
+        import sys
+        sys.path.insert(0, path.dirname( path.abspath(__file__) ) )
+        from base_endpoint import BaseEndpoint
+    else:
+        from .base_endpoint import BaseEndpoint
+else:
+    # We assume this is always called from src directory
+    from llm.endpoints.base_endpoint import BaseEndpoint
 
 class AzureModelType(Enum):
     OPENAI = "openai"
     PHI3 = "phi3"
     PHI4 = "phi4"
 
-# Define the AzureModel Enum to represent different Azure models
+# TODO: Define the AzureModel Enum to represent different Azure models
 ## Can be extended with specific models as needed
 class AzureModel(Enum):
     pass

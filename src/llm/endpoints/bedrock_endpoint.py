@@ -8,7 +8,18 @@ from botocore.exceptions import ClientError
 import json
 from enum import Enum
 
-from base_endpoint import BaseEndpoint
+# FIXME: Once the entire codebase is bundled into a package, we can support relative imports.
+if __name__=='__main__':
+    if __package__ is None:
+        from os import path
+        import sys
+        sys.path.insert(0, path.dirname( path.abspath(__file__) ) )
+        from base_endpoint import BaseEndpoint
+    else:
+        from .base_endpoint import BaseEndpoint
+else:
+    # We assume this is always called from src directory
+    from llm.endpoints.base_endpoint import BaseEndpoint
 
 class BedrockModelType(Enum):
     ANTHROPIC = "anthropic"
@@ -17,7 +28,7 @@ class BedrockModelType(Enum):
     COMMAND_R = "command_r"
     NOVA = "nova"
 
-# Define the BedrockModel Enum to represent different Bedrock models
+# TODO: Define the BedrockModel Enum to represent different Bedrock models
 ## Can be extended with specific models as needed
 class BedrockModel(Enum):
     pass
