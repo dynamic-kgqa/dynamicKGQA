@@ -7,7 +7,6 @@ import time
 from tqdm import tqdm
 import numpy as np
 
-
 def find_dotenv(start_path='.'):
     current_dir = os.path.abspath(start_path)
     while True:
