@@ -15,3 +15,11 @@ def get_ollama_annotations(prompt):
         print(f"Error getting Ollama annotation: {str(e)}")
         return None
     return annotator_ollama
+
+    # if above does not work try this:
+    
+    # annotator_1, _ = json.loads(query_ollama_model(prompt, model_name="llama3"))
+    # annotator_2, _ = json.loads(query_ollama_model(prompt, model_name="llama3"))
+    # annotator_3, _ = json.loads(query_ollama_model(prompt, model_name="llama3"))
+
+    # return annotator_1, annotator_2, annotator_3
