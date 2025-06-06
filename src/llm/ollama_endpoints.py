@@ -1,7 +1,15 @@
 import requests
 import json
+import re
 
 OLLAMA_BASE_URL = "http://localhost:11434"
+
+def extract_json(text):
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return match.group(0)
+    else:
+        raise ValueError("No JSON object found in response.")
 
 def query_ollama_model(prompt, model_name="llama3"):
     response = requests.post(
@@ -25,7 +33,14 @@ def query_ollama_model(prompt, model_name="llama3"):
                 contents.append(data['message']['content'])
             if data.get('done', False):
                 break
-    return ''.join(contents), None
+    full_response = ''.join(contents)
+    try:
+        json_str = extract_json(full_response)
+        parsed = json.loads(json_str)
+        return parsed, full_response
+    except Exception as e:
+        # Return the raw string for debugging if parsing fails
+        raise ValueError(f"Failed to parse JSON from model output: {e}\nRaw output: {full_response}")
 
 # def main():
 #     prompt = "Are you up? reply in json"
