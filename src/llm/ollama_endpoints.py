@@ -2,7 +2,7 @@ import requests
 import json
 import re
 
-OLLAMA_BASE_URL = "http://localhost:11434"
+# OLLAMA_BASE_URL = "http://localhost:11434"
 
 def extract_json(text):
     match = re.search(r'\{.*\}', text, re.DOTALL)
@@ -11,9 +11,10 @@ def extract_json(text):
     else:
         raise ValueError("No JSON object found in response.")
 
-def query_ollama_model(prompt, model_name="llama3"):
+def query_ollama_model(prompt, model_name="llama3", port=11434):
+    base_url = f"http://localhost:{port}"
     response = requests.post(
-        f"{OLLAMA_BASE_URL}/api/chat",
+        f"{base_url}/api/chat",
         json={
             "model": model_name,
             "messages": [

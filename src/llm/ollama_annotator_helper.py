@@ -20,20 +20,34 @@ def extract_json_from_response_block(block):
 
 
 def get_ollama_annotations(prompt):
-    annotations = []
-    for i in range(3):
-        raw, _ = query_ollama_model(prompt, model_name="llama3")
-        # print(f"🧠 Annotator {i+1} raw response:\n{raw}\n")
+    # Call query_ollama_model three times with different hardcoded model names
+    raw1, _ = query_ollama_model(prompt, model_name="llama3")
+    raw2, _ = query_ollama_model(prompt, model_name="mistral")
+    raw3, _ = query_ollama_model(prompt, model_name="gemma")
 
-        if isinstance(raw, dict):
-            parsed = raw
-        elif isinstance(raw, str):
-            parsed = extract_json_from_response_block(raw)
-        else:
-            raise TypeError(f"Unexpected type from model: {type(raw)}")
+    # Process each raw response
+    if isinstance(raw1, dict):
+        parsed1 = raw1
+    elif isinstance(raw1, str):
+        parsed1 = extract_json_from_response_block(raw1)
+    else:
+        raise TypeError(f"Unexpected type from model: {type(raw1)}")
 
-        annotations.append(parsed)
+    if isinstance(raw2, dict):
+        parsed2 = raw2
+    elif isinstance(raw2, str):
+        parsed2 = extract_json_from_response_block(raw2)
+    else:
+        raise TypeError(f"Unexpected type from model: {type(raw2)}")
 
+    if isinstance(raw3, dict):
+        parsed3 = raw3
+    elif isinstance(raw3, str):
+        parsed3 = extract_json_from_response_block(raw3)
+    else:
+        raise TypeError(f"Unexpected type from model: {type(raw3)}")
+
+    annotations = [parsed1, parsed2, parsed3]
     return tuple(annotations)
 
 
