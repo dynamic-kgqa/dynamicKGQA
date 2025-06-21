@@ -1,0 +1,67 @@
+# Ollama Multi-GPU Setup Instructions
+
+## Overview
+This guide explains how to run different Ollama models on multiple GPUs on your device.
+
+## Prerequisites
+- 4 GPUs available on your device
+- Ollama installed and configured
+- Basic knowledge of terminal commands
+
+## Step-by-Step Instructions
+
+### Step 1: Install Required Models
+Run the following commands to install the models you want to use:
+```bash
+ollama pull llama3
+ollama pull mistral
+ollama pull gemma
+```
+
+### Step 2: Verify Models
+Check that the models are available:
+```bash
+ollama list
+```
+
+### Step 3: Run Ollama Instances on Different GPUs
+Open three separate terminal windows and run the following commands:
+
+#### Terminal 1 (GPU 0 - Llama3):
+```bash
+CUDA_VISIBLE_DEVICES=0 ollama serve --port 11434
+```
+
+#### Terminal 2 (GPU 1 - Mistral):
+```bash
+CUDA_VISIBLE_DEVICES=1 ollama serve --port 11435
+```
+
+#### Terminal 3 (GPU 2 - Gemma):
+```bash
+CUDA_VISIBLE_DEVICES=2 ollama serve --port 11436
+```
+```
+
+### Step 4: Call Models with Different Ports
+Update your code to call each model with its corresponding port: (Do same for QA Call on a different port)
+
+```python
+raw1, _ = query_ollama_model(prompt, model_name="llama3", port=11434)
+raw2, _ = query_ollama_model(prompt, model_name="mistral", port=11435)
+raw3, _ = query_ollama_model(prompt, model_name="gemma", port=11436)
+```
+
+### Step 5: Monitor GPU Usage
+To check which GPUs are being used, run:
+```bash
+nvidia-smi
+```
+
+## Troubleshooting
+- Ensure each GPU has enough memory to run the models.
+- If you encounter memory issues, try reducing the batch size or model parameters.
+- Check that the ports (11434, 11435, 11436) are not already in use.
+
+## Conclusion
+You now have Ollama running different models on separate GPUs. Adjust the ports and GPU assignments as needed for your setup. 
