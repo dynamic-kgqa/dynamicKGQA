@@ -1,4 +1,7 @@
-"""Data classes for Yago."""
+"""
+Data classes for Yago.
+These are heavily tied to yago_db.py and a two-way matching should be maintained.
+"""
 
 
 class Item:

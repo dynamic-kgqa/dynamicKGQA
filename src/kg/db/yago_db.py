@@ -99,6 +99,14 @@ class YagoDB:
         self._conn.commit()
         return rows_inserted
 
+    def create_index_on_items(self, column: str) -> None:
+        """Create an index on the items table.
+
+        Args:
+        - column: The column to create the index on
+        """
+        self._curr.execute(f'CREATE INDEX IF NOT EXISTS idx_items_{column} ON items({column})')
+        self._conn.commit()
     
     def get_property(self, property_id: str) -> Property:
         """Get a property from the database.
@@ -176,7 +184,7 @@ class YagoDB:
         row = self._curr.fetchone()
         return Claim(*row)
     
-    def claims_from_subject(self, subject_id: str) -> Set[Claim]:
+    def get_claims_from_subject(self, subject_id: str) -> Set[Claim]:
         """Get outgoing claims relating to an item.
 
         Args:
@@ -189,18 +197,7 @@ class YagoDB:
             SELECT * FROM claims WHERE subject_id = ?
         ''', (subject_id,))
         return {Claim(*row) for row in self._curr.fetchall()}
-    
-    def random_item(self) -> Item:
-        """Get a random item from the database.
 
-        Returns:
-        - Randomly selected `Item`
-        """
-        self._curr.execute('''
-            SELECT * FROM items WHERE item_id IN (SELECT item_id FROM items ORDER BY RANDOM() LIMIT 1)
-        ''', ())
-        return Item(*self._curr.fetchone())
-    
     def claims_from_target(self, target_id: str) -> Set[Claim]:
         """Get incoming claims relating to an item.
 
@@ -214,6 +211,17 @@ class YagoDB:
             SELECT * FROM claims WHERE target_id = ?
         ''', (target_id,))
         return {Claim(*row) for row in self._curr.fetchall()}
+    
+    def get_random_item(self) -> Item:
+        """Get a random item from the database.
+
+        Returns:
+        - Randomly selected `Item`
+        """
+        self._curr.execute('''
+            SELECT * FROM items WHERE item_id IN (SELECT item_id FROM items ORDER BY RANDOM() LIMIT 1)
+        ''', ())
+        return Item(*self._curr.fetchone())
 
     def close(self) -> None:
         """Close the connection to the database."""
@@ -238,6 +246,7 @@ def main():
     args = parser.parse_args()
     db = YagoDB(args.db)
     db.create_db()
+    db.create_index_on_items('item_label')
     db.close()
 
 if __name__ == '__main__':
