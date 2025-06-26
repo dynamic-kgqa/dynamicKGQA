@@ -13,6 +13,8 @@ from classes import Item, Property, Claim
 from constants import PREFIX_PATH
 from yago_db import YagoDB
 
+# TODO: Additional testing needs to be done for the insert functions.
+
 def check_prefix(entities: List[str]) -> bool:
     """
     Check if the entities of a line contains a prefix.
@@ -94,9 +96,9 @@ def insert_properties(properties: List[Tuple[str, str]], db: YagoDB) -> int:
     int
         The number of properties inserted.
     """
-    properties = [Property(*property) for property in properties]
+    properties = [Property(*property_) for property_ in properties]
     try:
-        return db.insert_properties(properties)
+        return db.insert_properties_with_counts(properties)
     except Exception as e:
         # error_file.write(f'Error inserting properties:\n')
         return 0
@@ -161,48 +163,54 @@ def read_ttl_file(ttl_path: str, db: YagoDB, batch_length: int) -> None:
     prefix_dict = dict()
 
     entities_count = 0
-    entities_set = dict()
+    entities_dict = dict()
     properties_count = 0
-    properties_set = set()
+    properties_dict = dict()
     with open(ttl_path, 'r') as f:
         for line in tqdm(f):
             entities = read_ttl_line(line, prefix_dict)
             if not entities:
                 continue
             
-            if entities[0] not in entities_set:
-                entities_set[entities[0]] = 1
+            if entities[0] not in entities_dict.keys():
+                entities_dict[entities[0]] = 1
             else:
-                entities_set[entities[0]] += 1
-            properties_set.add(entities[1])
-            if len(entities_set) == batch_length:
+                entities_dict[entities[0]] += 1
+            if entities[1] not in properties_dict.keys():
+                properties_dict[entities[1]] = 1
+            else:
+                properties_dict[entities[1]] += 1
+            
+            if len(entities_dict) == batch_length:
                 entities_list = list([entity, createEntityLabel(entity), None, count] 
-                                     for (entity, count) in entities_set.items())
+                                     for (entity, count) in entities_dict.items())
 
                 res = insert_entities(entities_list, db)
-                entities_set = dict()
+                entities_dict = dict()
                 entities_count += res if res else 0
                 print(f'Inserted {batch_length} entities. Total: {entities_count}')
             
-            if len(properties_set) == batch_length:
+            if len(properties_dict) == batch_length:
                 # Insert properties
-                properties_list = list([property, None] for property in properties_set)
+                properties_list = list([property_, None, count]
+                                       for (property_, count) in properties_dict.items())
 
                 res = insert_properties(properties_list, db)
-                properties_set = set()
+                properties_dict = dict()
                 properties_count += res if res else 0
                 print(f'Inserted {batch_length} properties. Total: {properties_count}')
             # if count == TOTAL:
             #     return
         
-        if entities_set:
+        if entities_dict:
             entities_list = list([entity, createEntityLabel(entity), None, count] 
-                                 for (entity, count) in entities_set.items())
+                                 for (entity, count) in entities_dict.items())
             # print(entities_list)
             res = insert_entities(entities_list, db)
             entities_count += res if res else 0
-        if properties_set:
-            properties_list = list([property, None] for property in properties_set)
+        if properties_dict:
+            properties_list = list([property_, None, count] 
+                                   for (property_, count) in properties_dict.items())
             res = insert_properties(properties_list, db)
             properties_count += res if res else 0
 
@@ -227,6 +235,7 @@ def main(ttl_path: str, db_name: str, batch_length: int) -> None:
     read_ttl_file(ttl_path, db, batch_length)
 
 if __name__=="__main__":
+    # NOTE: This only works if the .ttl files are present in the data directory.
     from constants import TTL_PATH, TTL_ALL_PATH, DEFAULT_DB_NAME, ERROR_PATH
     parser = argparse.ArgumentParser(description='Insert entities into the Yago database.')
     parser.add_argument('--ttl_path', type=str, default=TTL_PATH, help='Path to the ttl file.')
