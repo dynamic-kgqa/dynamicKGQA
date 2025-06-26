@@ -13,6 +13,8 @@ from classes import Item, Property, Claim
 from constants import PREFIX_PATH
 from yago_db import YagoDB
 
+# TODO: Additional testing needs to be done for the insert functions.
+
 def check_prefix(entities: List[str]) -> bool:
     """
     Check if the entities of a line contains a prefix.
@@ -233,6 +235,7 @@ def main(ttl_path: str, db_name: str, batch_length: int) -> None:
     read_ttl_file(ttl_path, db, batch_length)
 
 if __name__=="__main__":
+    # NOTE: This only works if the .ttl files are present in the data directory.
     from constants import TTL_PATH, TTL_ALL_PATH, DEFAULT_DB_NAME, ERROR_PATH
     parser = argparse.ArgumentParser(description='Insert entities into the Yago database.')
     parser.add_argument('--ttl_path', type=str, default=TTL_PATH, help='Path to the ttl file.')
