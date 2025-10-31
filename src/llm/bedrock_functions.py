@@ -7,19 +7,28 @@ import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
-
 from botocore.exceptions import ClientError
 
+# TODO: This preprocessing logic should not be in global scope. 
+# We should have a function to load the environment variables and initialize the clients based on a config file.
 # logger = logging.getLogger(__name__)
 # logging.basicConfig(filename='/home/ec2-user/code_repos/dynamicKGQA/logs/bedrock_functions.log',
 #                     level=logging.INFO)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+def get_bedrock_client():
+    # Set up logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
-bedrock_runtime = boto3.client(
+    # Create Bedrock Runtime client
+    bedrock_runtime = boto3.client(
         service_name='bedrock-runtime',
         region_name='us-east-1'
     )
+
+    logger.info("Bedrock Runtime client initialized.")
+    return bedrock_runtime
+
+get_bedrock_client()
 
 def build_anthropic_request_body(
     system_prompt: str,

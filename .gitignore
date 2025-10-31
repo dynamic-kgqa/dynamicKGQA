@@ -5,3 +5,8 @@ outputs
 plots
 .env
 *__pycache__*
+*.log
+generate_dynamic_test_split.py
+
+# Project files
+src/kg/yago-4.5.0.2*

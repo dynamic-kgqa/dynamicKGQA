@@ -1,4 +1,4 @@
-# KG Hosting Alternatives
+# Knowledge Graph Hosting Alternatives
 
 This file outlines the other methods that we used to host the KG before switching to Docker Blazegraph. We list the end results of each method, along with the pros and cons of each approach.
 

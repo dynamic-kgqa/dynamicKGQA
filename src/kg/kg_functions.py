@@ -7,8 +7,9 @@ from kg.query import query_kg, query_kg_endpoint, get_triples_from_response
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
-
+# TODO: Move this to a config file
 yago_endpoint_url = "http://localhost:9999/bigdata/sparql"
+# TODO: Make this a configurable option
 exclude_props = ['schema:image','schema:about', 'rdfs:comment', 'schema:gtin', 'schema:url', 'rdfs:label', 'schema:postalCode', 'schema:isbn', 'schema:sameAs', 'schema:mainEntityOfPage', 'schema:leiCode', 'rdf:type', 'schema:dateCreated', 'yago:unemploymentRate', 'yago:length', 'schema:description', 'yago:iswcCode', 'schema:iataCode', 'schema:logo', 'schema:alternateName', 'schema:geo', 'rdfs:subclassOf', 'schema:icaoCode', 'yago:humanDevelopmentIndex', 'owl:sameAs', 'schema:dateCreated', 'schema:startDate', 'schema:endDate', 'yago:follows', 'schema:superEvent']
 
 def load_json(file_path):
